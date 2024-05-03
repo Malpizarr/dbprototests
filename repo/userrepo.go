@@ -8,6 +8,7 @@ import (
 type UserRepo interface {
 	Create(user model.User) error
 	GetAll() ([]model.User, error)
+	Update(user model.User) error
 }
 
 type userRepo struct {
@@ -21,7 +22,7 @@ func NewUserRepo(db *data.Database) UserRepo {
 func (ur *userRepo) Create(user model.User) error {
 	// Convertir model.User a data.Record
 	userRecord := data.Record{
-		"username": user.Username, // Asumiendo que ID es int
+		"username": user.Username,
 		"email":    user.Email,    // Asumiendo que Name es string
 		"password": user.Password, // Asumiendo que Email es string
 	}
@@ -57,4 +58,16 @@ func (ur *userRepo) GetAll() ([]model.User, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+func (ur *userRepo) Update(user model.User) error {
+	key := user.Username
+
+	userRecord := data.Record{
+		"username": user.Username,
+		"email":    user.Email,
+		"password": user.Password,
+	}
+
+	return ur.db.Tables["users"].Update(key, userRecord)
 }

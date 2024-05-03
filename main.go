@@ -42,4 +42,20 @@ func main() {
 	for _, user := range users {
 		log.Println(user)
 	}
+
+	err = repo.Update(model.User{
+		Username: "malpizarr",
+		Email:    "mau",
+		Password: "12344",
+	})
+	if err != nil {
+		log.Fatalf("error updating user: %v", err)
+	}
+	users, err = repo.GetAll()
+	if err != nil {
+		log.Fatalf("error getting users: %v", err)
+	}
+	for _, user := range users {
+		log.Println(user)
+	}
 }
