@@ -58,4 +58,16 @@ func main() {
 	for _, user := range users {
 		log.Println(user)
 	}
+
+	err = repo.Delete("malpizarr")
+	if err != nil {
+		log.Fatalf("error deleting user: %v", err)
+	}
+	users, err = repo.GetAll()
+	if err != nil {
+		log.Fatalf("error getting users: %v", err)
+	}
+	for _, user := range users {
+		log.Println(user)
+	}
 }

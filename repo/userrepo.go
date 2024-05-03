@@ -9,6 +9,7 @@ type UserRepo interface {
 	Create(user model.User) error
 	GetAll() ([]model.User, error)
 	Update(user model.User) error
+	Delete(username string) error
 }
 
 type userRepo struct {
@@ -20,14 +21,12 @@ func NewUserRepo(db *data.Database) UserRepo {
 }
 
 func (ur *userRepo) Create(user model.User) error {
-	// Convertir model.User a data.Record
 	userRecord := data.Record{
 		"username": user.Username,
-		"email":    user.Email,    // Asumiendo que Name es string
-		"password": user.Password, // Asumiendo que Email es string
+		"email":    user.Email,
+		"password": user.Password,
 	}
 
-	// Insertar el record en la tabla de usuarios
 	return ur.db.Tables["users"].Insert(userRecord)
 }
 
@@ -70,4 +69,8 @@ func (ur *userRepo) Update(user model.User) error {
 	}
 
 	return ur.db.Tables["users"].Update(key, userRecord)
+}
+
+func (ur *userRepo) Delete(username string) error {
+	return ur.db.Tables["users"].Delete(username)
 }
