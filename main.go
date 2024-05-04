@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/Malpizarr/dbproto/pkg/data"
-	model "github.com/Malpizarr/testwprotodb/data"
+	"github.com/Malpizarr/testwprotodb/handler"
 	"github.com/Malpizarr/testwprotodb/repo"
+	"github.com/Malpizarr/testwprotodb/service"
 	"github.com/joho/godotenv"
 )
 
@@ -23,51 +25,17 @@ func main() {
 
 	server.CreateDatabase("users")
 	db := server.Databases["users"]
-	db.CreateTable("users", "username")
-
+	db.CreateTable("users", "Username")
 	repo := repo.NewUserRepo(db)
-	err = repo.Create(model.User{
-		Username: "malpizarr",
-		Email:    "mau",
-		Password: "123",
-	})
-	if err != nil {
-		log.Fatalf("error creating user: %v", err)
-	}
+	service := service.NewUserService(repo)
+	handler := handler.NewUserHandler(service)
 
-	users, err := repo.GetAll()
-	if err != nil {
-		log.Fatalf("error getting users: %v", err)
-	}
-	for _, user := range users {
-		log.Println(user)
-	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /users", handler.CreateUser)
+	mux.HandleFunc("PUT /users", handler.UpdateUser)
+	mux.HandleFunc("GET /users", handler.GetUsers)
+	mux.HandleFunc("GET /users/{username}", handler.GetUser)
+	mux.HandleFunc("DELETE /users/{username}", handler.DeleteUser)
 
-	err = repo.Update(model.User{
-		Username: "malpizarr",
-		Email:    "mau",
-		Password: "12344",
-	})
-	if err != nil {
-		log.Fatalf("error updating user: %v", err)
-	}
-	users, err = repo.GetAll()
-	if err != nil {
-		log.Fatalf("error getting users: %v", err)
-	}
-	for _, user := range users {
-		log.Println(user)
-	}
-
-	err = repo.Delete("malpizarr")
-	if err != nil {
-		log.Fatalf("error deleting user: %v", err)
-	}
-	users, err = repo.GetAll()
-	if err != nil {
-		log.Fatalf("error getting users: %v", err)
-	}
-	for _, user := range users {
-		log.Println(user)
-	}
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }

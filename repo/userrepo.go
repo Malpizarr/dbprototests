@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"fmt"
+
 	"github.com/Malpizarr/dbproto/pkg/data"
 	model "github.com/Malpizarr/testwprotodb/data"
 )
@@ -8,6 +10,7 @@ import (
 type UserRepo interface {
 	Create(user model.User) error
 	GetAll() ([]model.User, error)
+	Get(username string) (model.User, error)
 	Update(user model.User) error
 	Delete(username string) error
 }
@@ -22,9 +25,9 @@ func NewUserRepo(db *data.Database) UserRepo {
 
 func (ur *userRepo) Create(user model.User) error {
 	userRecord := data.Record{
-		"username": user.Username,
-		"email":    user.Email,
-		"password": user.Password,
+		"Username": user.Username,
+		"Email":    user.Email,
+		"Password": user.Password,
 	}
 
 	return ur.db.Tables["users"].Insert(userRecord)
@@ -42,9 +45,9 @@ func (ur *userRepo) GetAll() ([]model.User, error) {
 			continue
 		}
 
-		username, ok1 := record.Fields["username"]
-		email, ok2 := record.Fields["email"]
-		password, ok3 := record.Fields["password"]
+		username, ok1 := record.Fields["Username"]
+		email, ok2 := record.Fields["Email"]
+		password, ok3 := record.Fields["Password"]
 		if !ok1 || !ok2 || !ok3 {
 			continue
 		}
@@ -63,9 +66,9 @@ func (ur *userRepo) Update(user model.User) error {
 	key := user.Username
 
 	userRecord := data.Record{
-		"username": user.Username,
-		"email":    user.Email,
-		"password": user.Password,
+		"Username": user.Username,
+		"Email":    user.Email,
+		"Password": user.Password,
 	}
 
 	return ur.db.Tables["users"].Update(key, userRecord)
@@ -73,4 +76,28 @@ func (ur *userRepo) Update(user model.User) error {
 
 func (ur *userRepo) Delete(username string) error {
 	return ur.db.Tables["users"].Delete(username)
+}
+
+func (ur *userRepo) Get(username string) (model.User, error) {
+	record, err := ur.db.Tables["users"].Select(username)
+	if err != nil {
+		return model.User{}, err
+	}
+	if record == nil {
+		return model.User{}, nil
+	}
+	username, ok1 := record.Fields["Username"]
+	email, ok2 := record.Fields["Email"]
+	password, ok3 := record.Fields["Password"]
+
+	if !ok1 || !ok2 || !ok3 {
+		return model.User{}, fmt.Errorf("one or more required fields are missing in the record")
+	}
+
+	user := model.User{
+		Username: username,
+		Email:    email,
+		Password: password,
+	}
+	return user, nil
 }
