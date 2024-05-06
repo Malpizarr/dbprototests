@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/Malpizarr/dbproto/pkg/data"
@@ -26,9 +27,8 @@ func NewPostRepo(db *data.Database) PostRepo {
 }
 
 func (pr *postRepo) Create(post model.Post) error {
-	s := strconv.Itoa(post.ID)
 	postRecord := data.Record{
-		"ID":       s,
+		"ID":       post.ID,
 		"Username": post.Username,
 		"Title":    post.Title,
 		"Content":  post.Content,
@@ -45,23 +45,40 @@ func (pr *postRepo) GetAll() ([]model.Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	posts := make([]model.Post, 0)
+	var posts []model.Post
 	for _, record := range records {
 		if record == nil {
 			continue
 		}
-		idStr, ok1 := record.Fields["ID"]
-		username, ok2 := record.Fields["Username"]
-		title, ok3 := record.Fields["Title"]
-		content, ok4 := record.Fields["Content"]
+		idValue, ok1 := record.Fields["ID"]
+		usernameValue, ok2 := record.Fields["Username"]
+		titleValue, ok3 := record.Fields["Title"]
+		contentValue, ok4 := record.Fields["Content"]
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			continue
 		}
 
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			continue
+		var id int
+		if idValue != nil {
+			idFloat := idValue.GetNumberValue()
+			id = int(idFloat)
 		}
+
+		username := ""
+		if usernameValue != nil {
+			username = usernameValue.GetStringValue()
+		}
+
+		title := ""
+		if titleValue != nil {
+			title = titleValue.GetStringValue()
+		}
+
+		content := ""
+		if contentValue != nil {
+			content = contentValue.GetStringValue()
+		}
+
 		post := model.Post{
 			ID:       id,
 			Username: username,
@@ -79,25 +96,27 @@ func (pr *postRepo) GetByUsername(username string) ([]model.Post, error) {
 
 	joinedRecords, err := data.JoinTables(postsTable, usersTable, "Username", "Username", data.InnerJoin)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to join tables: %v", err)
 	}
 
 	var posts []model.Post
 	for _, record := range joinedRecords {
-		idStr, ok := record["t1.ID"].(string)
-		if !ok {
+		var id int
+		if idVal, ok := record["t1.ID"].(float64); ok {
+			id = int(idVal)
+		} else {
+			log.Printf("ID value is missing or not a float64 for username: %s", username)
 			continue
 		}
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			continue
-		}
+		usernameValue := record["t1.Username"].(string)
+		titleValue := record["t1.Title"].(string)
+		contentValue := record["t1.Content"].(string)
 
 		post := model.Post{
 			ID:       id,
-			Username: record["t1.Username"].(string),
-			Title:    record["t1.Title"].(string),
-			Content:  record["t1.Content"].(string),
+			Username: usernameValue,
+			Title:    titleValue,
+			Content:  contentValue,
 		}
 		posts = append(posts, post)
 	}
@@ -121,28 +140,28 @@ func (pr *postRepo) GetByID(id int) (model.Post, error) {
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return model.Post{}, fmt.Errorf("error getting post by id")
 	}
-	idS, err := strconv.Atoi(idStr)
+	iD := idStr.GetStringValue()
+	idS, err := strconv.Atoi(iD)
 	if err != nil {
 		return model.Post{}, fmt.Errorf("error converting id to int")
 	}
 	post := model.Post{
 		ID:       idS,
-		Username: username,
-		Title:    title,
-		Content:  content,
+		Username: username.GetStringValue(),
+		Title:    title.GetStringValue(),
+		Content:  content.GetStringValue(),
 	}
 	return post, nil
 }
 
 func (pr *postRepo) Update(post model.Post) error {
-	key := strconv.Itoa(post.ID)
 	postRecord := data.Record{
 		"ID":       post.ID,
 		"Username": post.Username,
 		"Title":    post.Title,
 		"Content":  post.Content,
 	}
-	return pr.db.Tables["posts"].Update(key, postRecord)
+	return pr.db.Tables["posts"].Update(post.ID, postRecord)
 }
 
 func (pr *postRepo) Delete(id int) error {
