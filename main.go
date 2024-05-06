@@ -26,16 +26,28 @@ func main() {
 	server.CreateDatabase("users")
 	db := server.Databases["users"]
 	db.CreateTable("users", "Username")
-	repo := repo.NewUserRepo(db)
-	service := service.NewUserService(repo)
-	handler := handler.NewUserHandler(service)
+	db.CreateTable("posts", "ID")
+	userrepo := repo.NewUserRepo(db)
+	userservice := service.NewUserService(userrepo)
+	userhandler := handler.NewUserHandler(userservice)
+
+	postrepo := repo.NewPostRepo(db)
+	postservice := service.NewPostService(postrepo)
+	posthandler := handler.NewPostHandler(postservice)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /users", handler.CreateUser)
-	mux.HandleFunc("PUT /users", handler.UpdateUser)
-	mux.HandleFunc("GET /users", handler.GetUsers)
-	mux.HandleFunc("GET /users/{username}", handler.GetUser)
-	mux.HandleFunc("DELETE /users/{username}", handler.DeleteUser)
+	mux.HandleFunc("POST /users", userhandler.CreateUser)
+	mux.HandleFunc("PUT /users", userhandler.UpdateUser)
+	mux.HandleFunc("GET /users", userhandler.GetUsers)
+	mux.HandleFunc("GET /users/{username}", userhandler.GetUser)
+	mux.HandleFunc("DELETE /users/{username}", userhandler.DeleteUser)
+
+	mux.HandleFunc("POST /posts", posthandler.Create)
+	mux.HandleFunc("GET /posts", posthandler.GetAll)
+	mux.HandleFunc("GET /posts/{username}", posthandler.GetByUsername)
+
+	mux.HandleFunc("PUT /posts", posthandler.Update)
+	mux.HandleFunc("DELETE /posts/{id}", posthandler.Delete)
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
