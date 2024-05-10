@@ -3,7 +3,7 @@ module github.com/Malpizarr/testwprotodb
 go 1.22.2
 
 require (
-	github.com/Malpizarr/dbproto v0.0.5
+	github.com/Malpizarr/dbproto v0.0.7
 	github.com/joho/godotenv v1.5.1
 )
 
