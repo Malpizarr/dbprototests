@@ -45,7 +45,6 @@ func main() {
 	mux.HandleFunc("POST /posts", posthandler.Create)
 	mux.HandleFunc("GET /posts", posthandler.GetAll)
 	mux.HandleFunc("GET /posts/{username}", posthandler.GetByUsername)
-
 	mux.HandleFunc("PUT /posts", posthandler.Update)
 	mux.HandleFunc("DELETE /posts/{id}", posthandler.Delete)
 

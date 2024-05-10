@@ -105,5 +105,5 @@ func (uh *userHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error deleting user", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
 }
