@@ -24,13 +24,24 @@ func NewFriendshipRepo(db *data.Database) FriendshipRepo {
 }
 
 func (fr *friendshipRepo) Create(friendship model.Friendship) error {
+	filters := map[string]interface{}{
+		"User1": friendship.User1,
+		"User2": friendship.User2,
+	}
+	friendshipExists, err := fr.db.Tables["friendships"].SelectWithFilter(filters)
+	if err != nil {
+		return err
+	}
+	if friendshipExists != nil {
+		return fmt.Errorf("error: friendship record already exists")
+	}
 	friendshipRecord := data.Record{
 		"ID":     friendship.ID,
 		"User1":  friendship.User1,
 		"User2":  friendship.User2,
 		"Status": friendship.Status,
 	}
-	err := fr.db.Tables["friendships"].Insert(friendshipRecord)
+	err = fr.db.Tables["friendships"].Insert(friendshipRecord)
 	if err != nil {
 		return err
 	}
