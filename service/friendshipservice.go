@@ -11,6 +11,7 @@ type FriendshipService interface {
 	AcceptFriendship(id int) error
 	RejectFriendship(id int) error
 	DeleteFriendship(id int) error
+	GetAll() ([]model.Friendship, error)
 }
 
 type friendshipService struct {
@@ -39,4 +40,8 @@ func (fs *friendshipService) RejectFriendship(id int) error {
 
 func (fs *friendshipService) DeleteFriendship(id int) error {
 	return fs.repo.DeleteFriendship(id)
+}
+
+func (fs *friendshipService) GetAll() ([]model.Friendship, error) {
+	return fs.repo.GetAll()
 }

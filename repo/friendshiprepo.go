@@ -13,6 +13,7 @@ type FriendshipRepo interface {
 	AcceptFriendship(id int) error
 	RejectFriendship(id int) error
 	DeleteFriendship(id int) error
+	GetAll() ([]model.Friendship, error)
 }
 
 type friendshipRepo struct {
@@ -24,15 +25,18 @@ func NewFriendshipRepo(db *data.Database) FriendshipRepo {
 }
 
 func (fr *friendshipRepo) Create(friendship model.Friendship) error {
-	filters := map[string]interface{}{
-		"User1": friendship.User1,
-		"User2": friendship.User2,
+	query := data.Query{
+		Filters: map[string]interface{}{
+			"User1": friendship.User1,
+			"User2": friendship.User2,
+		},
+		Limit: 1,
 	}
-	friendshipExists, err := fr.db.Tables["friendships"].SelectWithFilter(filters)
+	friendshipExists, err := fr.db.Tables["friendships"].Query(query)
 	if err != nil {
 		return err
 	}
-	if friendshipExists != nil {
+	if len(friendshipExists) > 0 {
 		return fmt.Errorf("error: friendship record already exists")
 	}
 	friendshipRecord := data.Record{
@@ -129,4 +133,31 @@ func (fr *friendshipRepo) DeleteFriendship(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (fr *friendshipRepo) GetAll() ([]model.Friendship, error) {
+	records, err := fr.db.Tables["friendships"].SelectAll()
+	if err != nil {
+		return nil, err
+	}
+	var friendships []model.Friendship
+	for _, record := range records {
+		idStr, ok1 := record.Fields["ID"]
+		user1Str, ok2 := record.Fields["User1"]
+		user2Str, ok3 := record.Fields["User2"]
+		statusStr, ok4 := record.Fields["Status"]
+		if !ok1 || !ok2 || !ok3 || !ok4 {
+			return nil, fmt.Errorf("error: error getting friendship records")
+		}
+		iD := idStr.GetNumberValue()
+		idS := int(iD)
+		friendship := model.Friendship{
+			ID:     idS,
+			User1:  user1Str.GetStringValue(),
+			User2:  user2Str.GetStringValue(),
+			Status: statusStr.GetStringValue(),
+		}
+		friendships = append(friendships, friendship)
+	}
+	return friendships, nil
 }

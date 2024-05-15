@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	model "github.com/Malpizarr/testwprotodb/data"
+
 	"github.com/Malpizarr/testwprotodb/service"
 )
 
@@ -16,6 +17,7 @@ type FriendshipHandler interface {
 	AcceptFriendship(w http.ResponseWriter, r *http.Request)
 	RejectFriendship(w http.ResponseWriter, r *http.Request)
 	DeleteFriendship(w http.ResponseWriter, r *http.Request)
+	GetAll(w http.ResponseWriter, r *http.Request)
 }
 
 type friendshipHandler struct {
@@ -36,13 +38,14 @@ func (fh *friendshipHandler) Create(w http.ResponseWriter, r *http.Request) {
 	err = fh.service.Create(friendship)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 }
 
 func (fh *friendshipHandler) GetFriendship(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	if id == "" {
 		http.Error(w, "error: id parameter is required", http.StatusBadRequest)
 		return
@@ -119,4 +122,17 @@ func (fh *friendshipHandler) DeleteFriendship(w http.ResponseWriter, r *http.Req
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (fh *friendshipHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	friendships, err := fh.service.GetAll()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(friendships)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

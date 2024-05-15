@@ -49,7 +49,8 @@ func main() {
 	mux.HandleFunc("DELETE /posts/{id}", posthandler.Delete)
 
 	mux.HandleFunc("POST /friendships", friendshiphandler.Create)
-	mux.HandleFunc("GET /friendships", friendshiphandler.GetFriendship)
+	mux.HandleFunc("GET /friendships/{id}", friendshiphandler.GetFriendship)
+	mux.HandleFunc("GET /friendships", friendshiphandler.GetAll)
 	mux.HandleFunc("PUT /friendships/accept/{id}", friendshiphandler.AcceptFriendship)
 	mux.HandleFunc("PUT /friendships/reject/{id}", friendshiphandler.RejectFriendship)
 	mux.HandleFunc("DELETE /friendships/{id}", friendshiphandler.DeleteFriendship)
