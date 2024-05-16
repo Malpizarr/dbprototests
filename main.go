@@ -18,7 +18,8 @@ func main() {
 		log.Fatalf("error initializing server: %v", err)
 	}
 
-	server.CreateDatabase("users")
+	err = server.CreateDatabase("users")
+
 	db := server.Databases["users"]
 	db.CreateTable("users", "Username")
 	db.CreateTable("posts", "ID")

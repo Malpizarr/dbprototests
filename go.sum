@@ -20,6 +20,8 @@ github.com/Malpizarr/dbproto v0.0.9 h1:mRLKPIscfSIGDluLnsXjTTHr/0xlSh95Rhuzq7dXk
 github.com/Malpizarr/dbproto v0.0.9/go.mod h1:6HiUEg01THtyN9XatxLj1sy/kVGZ5H7drAQ7X5DnVQY=
 github.com/Malpizarr/dbproto v0.0.10 h1:M4tWJMKkHFX5Zyn6V9SIpa80itPSbbEg3Db60ibLFwA=
 github.com/Malpizarr/dbproto v0.0.10/go.mod h1:6HiUEg01THtyN9XatxLj1sy/kVGZ5H7drAQ7X5DnVQY=
+github.com/Malpizarr/dbproto v0.0.11 h1:Dmj7Dv7aipcz9PwPj26xco3ESAS1wSKz9r9XnDgG2WY=
+github.com/Malpizarr/dbproto v0.0.11/go.mod h1:6HiUEg01THtyN9XatxLj1sy/kVGZ5H7drAQ7X5DnVQY=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=

@@ -46,6 +46,7 @@ func (fr *friendshipRepo) Create(friendship model.Friendship) error {
 		"Status": friendship.Status,
 	}
 	err = fr.db.Tables["friendships"].Insert(friendshipRecord)
+	fmt.Print(fr.db.Tables["friendships"].PrimaryKey)
 	if err != nil {
 		return err
 	}
