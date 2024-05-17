@@ -19,11 +19,12 @@ type PostRepo interface {
 }
 
 type postRepo struct {
-	db *data.Database
+	db       *data.Database
+	userRepo UserRepo
 }
 
-func NewPostRepo(db *data.Database) PostRepo {
-	return &postRepo{db: db}
+func NewPostRepo(db *data.Database, ur UserRepo) PostRepo {
+	return &postRepo{db: db, userRepo: ur}
 }
 
 func (pr *postRepo) Create(post model.Post) error {
@@ -33,7 +34,12 @@ func (pr *postRepo) Create(post model.Post) error {
 		"Title":    post.Title,
 		"Content":  post.Content,
 	}
-	err := pr.db.Tables["posts"].Insert(postRecord)
+	userExists, err := pr.userRepo.Get(post.Username)
+	if userExists == nil {
+		return fmt.Errorf("error: user does not exist")
+
+	}
+	err = pr.db.Tables["posts"].Insert(postRecord)
 	if err != nil {
 		return err
 	}

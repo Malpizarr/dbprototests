@@ -46,6 +46,7 @@ func (fr *friendshipRepo) Create(friendship model.Friendship) error {
 	if user1exists == nil || user2exists == nil {
 		return fmt.Errorf("error: user does not exist")
 	}
+
 	friendshipRecord := data.Record{
 		"ID":     friendship.ID,
 		"User1":  friendship.User1,
@@ -89,7 +90,6 @@ func (fr *friendshipRepo) GetFriendship(id int) (*model.Friendship, error) {
 func (fr *friendshipRepo) AcceptFriendship(id int) error {
 	friendshipRecord, err := fr.db.Tables["friendships"].Select(id)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

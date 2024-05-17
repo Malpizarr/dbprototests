@@ -28,7 +28,7 @@ func main() {
 	userservice := service.NewUserService(userrepo)
 	userhandler := handler.NewUserHandler(userservice)
 
-	postrepo := repo.NewPostRepo(db)
+	postrepo := repo.NewPostRepo(db, userrepo)
 	postservice := service.NewPostService(postrepo)
 	posthandler := handler.NewPostHandler(postservice)
 
@@ -37,6 +37,7 @@ func main() {
 	friendshiphandler := handler.NewFriendshipHandler(friendshipservice)
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("POST /users", userhandler.CreateUser)
 	mux.HandleFunc("PUT /users", userhandler.UpdateUser)
 	mux.HandleFunc("GET /users", userhandler.GetUsers)
