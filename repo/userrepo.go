@@ -10,7 +10,7 @@ import (
 type UserRepo interface {
 	Create(user model.User) error
 	GetAll() ([]model.User, error)
-	Get(username string) (model.User, error)
+	Get(username string) (*model.User, error)
 	Update(user model.User) error
 	Delete(username string) error
 }
@@ -78,13 +78,10 @@ func (ur *userRepo) Delete(username string) error {
 	return ur.db.Tables["users"].Delete(username)
 }
 
-func (ur *userRepo) Get(username string) (model.User, error) {
+func (ur *userRepo) Get(username string) (*model.User, error) {
 	record, err := ur.db.Tables["users"].Select(username)
 	if err != nil {
-		return model.User{}, err
-	}
-	if record == nil {
-		return model.User{}, fmt.Errorf("no user found with username: %s", username)
+		return nil, err
 	}
 
 	usernameValue, ok1 := record.Fields["Username"]
@@ -92,7 +89,7 @@ func (ur *userRepo) Get(username string) (model.User, error) {
 	passwordValue, ok3 := record.Fields["Password"]
 
 	if !ok1 || !ok2 || !ok3 {
-		return model.User{}, fmt.Errorf("one or more required fields are missing in the record")
+		return &model.User{}, fmt.Errorf("one or more required fields are missing in the record")
 	}
 
 	var user model.User
@@ -109,5 +106,5 @@ func (ur *userRepo) Get(username string) (model.User, error) {
 		user.Password = passwordValue.GetStringValue()
 	}
 
-	return user, nil
+	return &user, nil
 }

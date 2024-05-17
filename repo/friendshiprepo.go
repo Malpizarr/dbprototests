@@ -9,7 +9,7 @@ import (
 
 type FriendshipRepo interface {
 	Create(friendship model.Friendship) error
-	GetFriendship(id int) (model.Friendship, error)
+	GetFriendship(id int) (*model.Friendship, error)
 	AcceptFriendship(id int) error
 	RejectFriendship(id int) error
 	DeleteFriendship(id int) error
@@ -17,11 +17,12 @@ type FriendshipRepo interface {
 }
 
 type friendshipRepo struct {
-	db *data.Database
+	db       *data.Database
+	userRepo UserRepo
 }
 
-func NewFriendshipRepo(db *data.Database) FriendshipRepo {
-	return &friendshipRepo{db: db}
+func NewFriendshipRepo(db *data.Database, ur UserRepo) FriendshipRepo {
+	return &friendshipRepo{db: db, userRepo: ur}
 }
 
 func (fr *friendshipRepo) Create(friendship model.Friendship) error {
@@ -36,8 +37,14 @@ func (fr *friendshipRepo) Create(friendship model.Friendship) error {
 	if err != nil {
 		return err
 	}
+
 	if len(friendshipExists) > 0 {
 		return fmt.Errorf("error: friendship record already exists")
+	}
+	user1exists, err := fr.userRepo.Get(friendship.User1)
+	user2exists, err := fr.userRepo.Get(friendship.User2)
+	if user1exists == nil || user2exists == nil {
+		return fmt.Errorf("error: user does not exist")
 	}
 	friendshipRecord := data.Record{
 		"ID":     friendship.ID,
@@ -53,17 +60,17 @@ func (fr *friendshipRepo) Create(friendship model.Friendship) error {
 	return nil
 }
 
-func (fr *friendshipRepo) GetFriendship(id int) (model.Friendship, error) {
+func (fr *friendshipRepo) GetFriendship(id int) (*model.Friendship, error) {
 	friendshipRecord, err := fr.db.Tables["friendships"].Select(id)
 	if err != nil {
-		return model.Friendship{}, err
+		return nil, err
 	}
 	idStr, ok1 := friendshipRecord.Fields["ID"]
 	user1Str, ok2 := friendshipRecord.Fields["User1"]
 	user2Str, ok3 := friendshipRecord.Fields["User2"]
 	statusStr, ok4 := friendshipRecord.Fields["Status"]
 	if !ok1 || !ok2 || !ok3 || !ok4 {
-		return model.Friendship{}, fmt.Errorf("error: friendship record not found")
+		return nil, fmt.Errorf("error: friendship record not found")
 	}
 
 	iD := idStr.GetNumberValue()
@@ -76,7 +83,7 @@ func (fr *friendshipRepo) GetFriendship(id int) (model.Friendship, error) {
 		User2:  user2Str.GetStringValue(),
 		Status: statusStr.GetStringValue(),
 	}
-	return friendship, nil
+	return &friendship, nil
 }
 
 func (fr *friendshipRepo) AcceptFriendship(id int) error {

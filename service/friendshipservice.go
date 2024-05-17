@@ -7,7 +7,7 @@ import (
 
 type FriendshipService interface {
 	Create(friendship model.Friendship) error
-	GetFriendship(id int) (model.Friendship, error)
+	GetFriendship(id int) (*model.Friendship, error)
 	AcceptFriendship(id int) error
 	RejectFriendship(id int) error
 	DeleteFriendship(id int) error
@@ -26,7 +26,7 @@ func (fs *friendshipService) Create(friendship model.Friendship) error {
 	return fs.repo.Create(friendship)
 }
 
-func (fs *friendshipService) GetFriendship(id int) (model.Friendship, error) {
+func (fs *friendshipService) GetFriendship(id int) (*model.Friendship, error) {
 	return fs.repo.GetFriendship(id)
 }
 

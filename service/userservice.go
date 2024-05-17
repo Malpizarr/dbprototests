@@ -8,7 +8,7 @@ import (
 type UserService interface {
 	CreateUser(user model.User) error
 	UpdateUser(user model.User) error
-	GetUser(username string) (model.User, error)
+	GetUser(username string) (*model.User, error)
 	GetUsers() ([]model.User, error)
 	DeleteUser(username string) error
 }
@@ -29,7 +29,7 @@ func (us *userService) UpdateUser(user model.User) error {
 	return us.repo.Update(user)
 }
 
-func (us *userService) GetUser(username string) (model.User, error) {
+func (us *userService) GetUser(username string) (*model.User, error) {
 	return us.repo.Get(username)
 }
 

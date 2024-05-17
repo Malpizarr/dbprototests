@@ -32,7 +32,7 @@ func main() {
 	postservice := service.NewPostService(postrepo)
 	posthandler := handler.NewPostHandler(postservice)
 
-	friendshiprepo := repo.NewFriendshipRepo(db)
+	friendshiprepo := repo.NewFriendshipRepo(db, userrepo)
 	friendshipservice := service.NewFriendshipService(friendshiprepo)
 	friendshiphandler := handler.NewFriendshipHandler(friendshipservice)
 
