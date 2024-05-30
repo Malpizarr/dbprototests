@@ -34,7 +34,7 @@ func (ph *postHandler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	post.ID = rand.Intn(1000)
+	post.ID = rand.Int63()
 
 	if err := ph.service.Create(post); err != nil {
 		http.Error(w, "Failed to create post: "+err.Error(), http.StatusInternalServerError)

@@ -56,33 +56,33 @@ func (pr *postRepo) GetAll() ([]model.Post, error) {
 		if record == nil {
 			continue
 		}
-		idValue, ok1 := record.Fields["ID"]
-		usernameValue, ok2 := record.Fields["Username"]
-		titleValue, ok3 := record.Fields["Title"]
-		contentValue, ok4 := record.Fields["Content"]
+		idValue, ok1 := record["ID"]
+		usernameValue, ok2 := record["Username"]
+		titleValue, ok3 := record["Title"]
+		contentValue, ok4 := record["Content"]
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			continue
 		}
 
-		var id int
+		var id int64
 		if idValue != nil {
-			idFloat := idValue.GetNumberValue()
-			id = int(idFloat)
+			id = idValue.(int64)
+
 		}
 
 		username := ""
 		if usernameValue != nil {
-			username = usernameValue.GetStringValue()
+			username = usernameValue.(string)
 		}
 
 		title := ""
 		if titleValue != nil {
-			title = titleValue.GetStringValue()
+			title = titleValue.(string)
 		}
 
 		content := ""
 		if contentValue != nil {
-			content = contentValue.GetStringValue()
+			content = contentValue.(string)
 		}
 
 		post := model.Post{
@@ -107,9 +107,9 @@ func (pr *postRepo) GetByUsername(username string) ([]model.Post, error) {
 
 	var posts []model.Post
 	for _, record := range joinedRecords {
-		var id int
-		if idVal, ok := record["t1.ID"].(float64); ok {
-			id = int(idVal)
+		var id int64
+		if idVal, ok := record["t1.ID"].(int64); ok {
+			id = idVal
 		} else {
 			log.Printf("ID value is missing or not a float64 for username: %s", username)
 			continue
@@ -139,23 +139,19 @@ func (pr *postRepo) GetByID(id int) (model.Post, error) {
 	if record == nil {
 		return model.Post{}, nil
 	}
-	idStr, ok1 := record.Fields["ID"]
-	username, ok2 := record.Fields["Username"]
-	title, ok3 := record.Fields["Title"]
-	content, ok4 := record.Fields["Content"]
+	idStr, ok1 := record["ID"]
+	username, ok2 := record["Username"]
+	title, ok3 := record["Title"]
+	content, ok4 := record["Content"]
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return model.Post{}, fmt.Errorf("error getting post by id")
 	}
-	iD := idStr.GetStringValue()
-	idS, err := strconv.Atoi(iD)
-	if err != nil {
-		return model.Post{}, fmt.Errorf("error converting id to int")
-	}
+
 	post := model.Post{
-		ID:       idS,
-		Username: username.GetStringValue(),
-		Title:    title.GetStringValue(),
-		Content:  content.GetStringValue(),
+		ID:       idStr.(int64),
+		Username: username.(string),
+		Title:    title.(string),
+		Content:  content.(string),
 	}
 	return post, nil
 }

@@ -45,17 +45,17 @@ func (ur *userRepo) GetAll() ([]model.User, error) {
 			continue
 		}
 
-		username, ok1 := record.Fields["Username"]
-		email, ok2 := record.Fields["Email"]
-		password, ok3 := record.Fields["Password"]
+		username, ok1 := record["Username"].(string)
+		email, ok2 := record["Email"].(string)
+		password, ok3 := record["Password"].(string)
 		if !ok1 || !ok2 || !ok3 {
 			continue
 		}
 
 		user := model.User{
-			Username: username.GetStringValue(),
-			Email:    email.GetStringValue(),
-			Password: password.GetStringValue(),
+			Username: username,
+			Email:    email,
+			Password: password,
 		}
 		users = append(users, user)
 	}
@@ -84,9 +84,9 @@ func (ur *userRepo) Get(username string) (*model.User, error) {
 		return nil, err
 	}
 
-	usernameValue, ok1 := record.Fields["Username"]
-	emailValue, ok2 := record.Fields["Email"]
-	passwordValue, ok3 := record.Fields["Password"]
+	usernameValue, ok1 := record["Username"]
+	emailValue, ok2 := record["Email"]
+	passwordValue, ok3 := record["Password"]
 
 	if !ok1 || !ok2 || !ok3 {
 		return &model.User{}, fmt.Errorf("one or more required fields are missing in the record")
@@ -95,15 +95,15 @@ func (ur *userRepo) Get(username string) (*model.User, error) {
 	var user model.User
 
 	if usernameValue != nil {
-		user.Username = usernameValue.GetStringValue()
+		user.Username = usernameValue.(string)
 	}
 
 	if emailValue != nil {
-		user.Email = emailValue.GetStringValue()
+		user.Email = emailValue.(string)
 	}
 
 	if passwordValue != nil {
-		user.Password = passwordValue.GetStringValue()
+		user.Password = passwordValue.(string)
 	}
 
 	return &user, nil

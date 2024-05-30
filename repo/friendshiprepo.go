@@ -66,23 +66,19 @@ func (fr *friendshipRepo) GetFriendship(id int) (*model.Friendship, error) {
 	if err != nil {
 		return nil, err
 	}
-	idStr, ok1 := friendshipRecord.Fields["ID"]
-	user1Str, ok2 := friendshipRecord.Fields["User1"]
-	user2Str, ok3 := friendshipRecord.Fields["User2"]
-	statusStr, ok4 := friendshipRecord.Fields["Status"]
+	idS, ok1 := friendshipRecord["ID"]
+	user1Str, ok2 := friendshipRecord["User1"]
+	user2Str, ok3 := friendshipRecord["User2"]
+	statusStr, ok4 := friendshipRecord["Status"]
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return nil, fmt.Errorf("error: friendship record not found")
 	}
 
-	iD := idStr.GetNumberValue()
-	idS := int(iD)
-	fmt.Println(idS)
-
 	friendship := model.Friendship{
-		ID:     idS,
-		User1:  user1Str.GetStringValue(),
-		User2:  user2Str.GetStringValue(),
-		Status: statusStr.GetStringValue(),
+		ID:     idS.(int64),
+		User1:  user1Str.(string),
+		User2:  user2Str.(string),
+		Status: statusStr.(string),
 	}
 	return &friendship, nil
 }
@@ -93,12 +89,12 @@ func (fr *friendshipRepo) AcceptFriendship(id int) error {
 		return err
 	}
 
-	statusValue, ok := friendshipRecord.Fields["Status"]
+	statusValue, ok := friendshipRecord["Status"]
 	if !ok || statusValue == nil {
 		return fmt.Errorf("error: friendship status field is missing or not a proper *structpb.Value")
 	}
 
-	currentStatus := statusValue.GetStringValue()
+	currentStatus := statusValue.(string)
 	if currentStatus == "accepted" {
 		return nil
 	}
@@ -119,11 +115,11 @@ func (fr *friendshipRepo) RejectFriendship(id int) error {
 	if err != nil {
 		return err
 	}
-	statusValue, ok := friendshipRecord.Fields["Status"]
+	statusValue, ok := friendshipRecord["Status"]
 	if !ok || statusValue == nil {
 		return fmt.Errorf("error: friendship status field is missing or not a proper *structpb.Value")
 	}
-	currentStatus := statusValue.GetStringValue()
+	currentStatus := statusValue.(string)
 	if currentStatus == "rejected" {
 		return nil
 	}
@@ -150,20 +146,19 @@ func (fr *friendshipRepo) GetAll() ([]model.Friendship, error) {
 	}
 	var friendships []model.Friendship
 	for _, record := range records {
-		idStr, ok1 := record.Fields["ID"]
-		user1Str, ok2 := record.Fields["User1"]
-		user2Str, ok3 := record.Fields["User2"]
-		statusStr, ok4 := record.Fields["Status"]
+		idStr, ok1 := record["ID"]
+		user1Str, ok2 := record["User1"]
+		user2Str, ok3 := record["User2"]
+		statusStr, ok4 := record["Status"]
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			return nil, fmt.Errorf("error: error getting friendship records")
 		}
-		iD := idStr.GetNumberValue()
-		idS := int(iD)
+
 		friendship := model.Friendship{
-			ID:     idS,
-			User1:  user1Str.GetStringValue(),
-			User2:  user2Str.GetStringValue(),
-			Status: statusStr.GetStringValue(),
+			ID:     idStr.(int64),
+			User1:  user1Str.(string),
+			User2:  user2Str.(string),
+			Status: statusStr.(string),
 		}
 		friendships = append(friendships, friendship)
 	}
